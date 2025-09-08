@@ -24,22 +24,21 @@ jobs:
 
       - name: Send build start event to Dynatrace
         run: |
-          curl -X POST "${{ secrets.DT_URL }}/api/v2/events/ingest" \
+          curl -X POST "${{ secrets.DT_URL }}/platform/ingest/v1/events.sdlc" \
             -H "Authorization: Api-Token ${{ secrets.DT_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "eventType": "CUSTOM_INFO",
-              "title": "Build Started",
-              "entitySelector": "type(APPLICATION)",
-              "properties": {
-                "dt.event.source": "GitHub Actions",
-                "dt.event.pipeline.name": "build-easytrade",
-                "dt.event.pipeline.stage": "build",
-                "dt.event.pipeline.status": "RUNNING",
-                "commit": "'$GITHUB_SHA'",
-                "branch": "'$GITHUB_REF_NAME'",
-                "repository": "'$GITHUB_REPOSITORY'"
-              }
+              "event.kind": "SDLC_EVENT",
+              "event.category": "task", 
+              "event.type": "build",
+              "event.status": "started",
+              "task.name": "build-easytrade",
+              "vcs.repository.name": "easytrade",
+              "vcs.revision": "'$GITHUB_SHA'",
+              "vcs.ref.name": "'$GITHUB_REF_NAME'",
+              "cicd.pipeline.name": "'$GITHUB_WORKFLOW'",
+              "cicd.pipeline.run.id": "'$GITHUB_RUN_ID'",
+              "cicd.system": "GitHub Actions"
             }'
 
       - name: Login to Docker Hub
@@ -70,43 +69,43 @@ jobs:
       - name: Send build success event to Dynatrace
         if: success()
         run: |
-          curl -X POST "${{ secrets.DT_URL }}/api/v2/events/ingest" \
+          curl -X POST "${{ secrets.DT_URL }}/platform/ingest/v1/events.sdlc" \
             -H "Authorization: Api-Token ${{ secrets.DT_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "eventType": "CUSTOM_INFO",
-              "title": "Build Completed Successfully",
-              "entitySelector": "type(APPLICATION)",
-              "properties": {
-                "dt.event.source": "GitHub Actions",
-                "dt.event.pipeline.name": "build-easytrade",
-                "dt.event.pipeline.stage": "build",
-                "dt.event.pipeline.status": "SUCCESS",
-                "commit": "'$GITHUB_SHA'",
-                "branch": "'$GITHUB_REF_NAME'",
-                "repository": "'$GITHUB_REPOSITORY'"
-              }
+              "event.kind": "SDLC_EVENT",
+              "event.category": "task",
+              "event.type": "build",
+              "event.status": "finished",
+              "event.status.details": "success",
+              "task.name": "build-easytrade",
+              "vcs.repository.name": "easytrade",
+              "vcs.revision": "'$GITHUB_SHA'",
+              "vcs.ref.name": "'$GITHUB_REF_NAME'",
+              "cicd.pipeline.name": "'$GITHUB_WORKFLOW'",
+              "cicd.pipeline.run.id": "'$GITHUB_RUN_ID'",
+              "cicd.system": "GitHub Actions"
             }'
 
       - name: Send build failure event to Dynatrace
         if: failure()
         run: |
-          curl -X POST "${{ secrets.DT_URL }}/api/v2/events/ingest" \
+          curl -X POST "${{ secrets.DT_URL }}/platform/ingest/v1/events.sdlc" \
             -H "Authorization: Api-Token ${{ secrets.DT_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "eventType": "ERROR_EVENT",
-              "title": "Build Failed",
-              "entitySelector": "type(APPLICATION)",
-              "properties": {
-                "dt.event.source": "GitHub Actions",
-                "dt.event.pipeline.name": "build-easytrade",
-                "dt.event.pipeline.stage": "build",
-                "dt.event.pipeline.status": "FAILED",
-                "commit": "'$GITHUB_SHA'",
-                "branch": "'$GITHUB_REF_NAME'",
-                "repository": "'$GITHUB_REPOSITORY'"
-              }
+              "event.kind": "SDLC_EVENT",
+              "event.category": "task",
+              "event.type": "build",
+              "event.status": "finished",
+              "event.status.details": "failure",
+              "task.name": "build-easytrade",
+              "vcs.repository.name": "easytrade",
+              "vcs.revision": "'$GITHUB_SHA'",
+              "vcs.ref.name": "'$GITHUB_REF_NAME'",
+              "cicd.pipeline.name": "'$GITHUB_WORKFLOW'",
+              "cicd.pipeline.run.id": "'$GITHUB_RUN_ID'",
+              "cicd.system": "GitHub Actions"
             }'
 
 
