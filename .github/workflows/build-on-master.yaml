@@ -27,7 +27,7 @@ jobs:
           curl -X POST "${{ secrets.DT_URL }}/platform/ingest/v1/events.sdlc" \
             -H "Authorization: Api-Token ${{ secrets.DT_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{
+            -d '[{
               "event.kind": "SDLC_EVENT",
               "event.category": "task", 
               "event.type": "build",
@@ -39,7 +39,7 @@ jobs:
               "cicd.pipeline.name": "'$GITHUB_WORKFLOW'",
               "cicd.pipeline.run.id": "'$GITHUB_RUN_ID'",
               "cicd.system": "GitHub Actions"
-            }'
+            }]'
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
@@ -72,7 +72,7 @@ jobs:
           curl -X POST "${{ secrets.DT_URL }}/platform/ingest/v1/events.sdlc" \
             -H "Authorization: Api-Token ${{ secrets.DT_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{
+            -d '[{
               "event.kind": "SDLC_EVENT",
               "event.category": "task",
               "event.type": "build",
@@ -85,7 +85,7 @@ jobs:
               "cicd.pipeline.name": "'$GITHUB_WORKFLOW'",
               "cicd.pipeline.run.id": "'$GITHUB_RUN_ID'",
               "cicd.system": "GitHub Actions"
-            }'
+            }]'
 
       - name: Send build failure event to Dynatrace
         if: failure()
@@ -93,7 +93,7 @@ jobs:
           curl -X POST "${{ secrets.DT_URL }}/platform/ingest/v1/events.sdlc" \
             -H "Authorization: Api-Token ${{ secrets.DT_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{
+            -d '[{
               "event.kind": "SDLC_EVENT",
               "event.category": "task",
               "event.type": "build",
@@ -106,6 +106,6 @@ jobs:
               "cicd.pipeline.name": "'$GITHUB_WORKFLOW'",
               "cicd.pipeline.run.id": "'$GITHUB_RUN_ID'",
               "cicd.system": "GitHub Actions"
-            }'
+            }]'
 
 
