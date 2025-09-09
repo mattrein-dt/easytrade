@@ -14,6 +14,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/account")
@@ -23,10 +25,17 @@ public class AccountController {
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'hh:mm:ss").create();
     private final String manager = System.getenv("MANAGER_HOSTANDPORT");
+    
+    // Memory leak: static list that never gets cleared
+    private static final List<String> accountRequestCache = new ArrayList<>();
 
     @GetMapping("/{accountId}")
     public Account get(@PathVariable int accountId) throws IOException, InterruptedException {
         logger.info("Getting account data for {}", accountId);
+        
+        // Memory leak: continuously add data that never gets removed
+        accountRequestCache.add("Account request for ID: " + accountId + " at " + System.currentTimeMillis() + 
+                               " with detailed information and metadata that takes up memory space");
 
         // file deepcode ignore Ssrf: trusted environment variable
         HttpRequest request = HttpRequest.newBuilder()
