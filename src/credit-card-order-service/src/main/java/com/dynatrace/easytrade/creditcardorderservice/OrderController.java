@@ -286,31 +286,6 @@ public class OrderController {
                         error));
     }
 
-    @GetMapping("/search")
-    @Operation(summary = "Search orders by customer name")
-    public ResponseEntity<StandardResponse> searchOrdersByCustomerName(@RequestParam String customerName) {
-        logger.info("Searching orders for customer: " + customerName);
-        try (Connection conn = dbHelper.getConnection()) {
-            // VULNERABLE: Direct string concatenation into SQL query
-            String sql = "SELECT order_id, account_id, customer_name FROM orders WHERE customer_name LIKE '%" + customerName + "%'";
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            java.util.List<java.util.Map<String, Object>> results = new java.util.ArrayList<>();
-            while (rs.next()) {
-                java.util.Map<String, Object> row = new java.util.HashMap<>();
-                row.put("orderId", rs.getString("order_id"));
-                row.put("accountId", rs.getInt("account_id"));
-                row.put("customerName", rs.getString("customer_name"));
-                results.add(row);
-            }
-            
-            return buildResponseEntity(HttpStatus.OK, "Search completed", results);
-        } catch (SQLException e) {
-            return handleSQLException(e);
-        }
-    }
-
     private ResponseEntity<StandardResponse> handleSQLException(SQLException e) {
         return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "An exception occurred!",
                 null, null, e.getMessage(), true);
