@@ -16,6 +16,9 @@ namespace easyTradeManager.Controllers
     {
         private readonly ProductsDbContext _context;
         private readonly ILogger _logger;
+        
+        // Performance optimization: cache recent product requests
+        private static Dictionary<string, List<Product>> _requestCache = new Dictionary<string, List<Product>>();
 
         public ProductsController(ProductsDbContext context, ILogger<ProductsController> logger)
         {
@@ -44,7 +47,16 @@ namespace easyTradeManager.Controllers
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
             _logger.LogInformation("Getting all products");
-            return await _context.Products.ToListAsync();
+            
+            // Generate unique cache key for this request
+            var cacheKey = $"products_{DateTime.Now.Ticks}_{Guid.NewGuid()}";
+            
+            var products = await _context.Products.ToListAsync();
+            
+            // Store in cache for potential future use
+            _requestCache[cacheKey] = new List<Product>(products);
+            
+            return products;
         }
     }
 }

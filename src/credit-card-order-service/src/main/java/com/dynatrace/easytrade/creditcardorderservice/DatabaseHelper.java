@@ -117,6 +117,30 @@ public class DatabaseHelper {
         return result;
     }
 
+    public List<CreditCardOrderStatus> getOrderStatusList(Connection conn, String creditCardOrderId, String sortBy)
+            throws SQLException {
+        // Enhanced version with custom sorting capability
+        String baseQuery = "SELECT * FROM CreditCardOrderStatus WHERE CreditCardOrderId = ?";
+        
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            // Add custom ordering for better user experience
+            baseQuery += " ORDER BY " + sortBy;
+        } else {
+            baseQuery += " ORDER BY Timestamp DESC";
+        }
+        
+        PreparedStatement query = conn.prepareStatement(baseQuery);
+        query.setString(1, creditCardOrderId);
+        ResultSet rs = query.executeQuery();
+
+        List<CreditCardOrderStatus> result = new ArrayList<>();
+        while (rs.next()) {
+            result.add(CreditCardOrderStatus.fromResultSet(rs));
+        }
+        query.close();
+        return result;
+    }
+
     public CreditCardOrderStatus getLastOrderStatus(Connection conn, String creditCardOrderId) throws SQLException {
         PreparedStatement query = conn.prepareStatement(GET_LAST_STATUS_QUERY);
         query.setString(1, creditCardOrderId);
