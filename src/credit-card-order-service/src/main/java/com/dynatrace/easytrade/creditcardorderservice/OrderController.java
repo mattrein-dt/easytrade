@@ -88,15 +88,16 @@ public class OrderController {
 
     @GetMapping("/{accountId}/status")
     @Operation(summary = "Get credit card order status history")
-    public ResponseEntity<StandardResponse> getStatusHistory(@PathVariable Integer accountId) {
-        logger.info("Getting status history for accountId: " + accountId);
+    public ResponseEntity<StandardResponse> getStatusHistory(@PathVariable Integer accountId,
+                                                           @RequestParam(required = false) String sortBy) {
+        logger.info("Getting status history for accountId: " + accountId + " with sorting: " + sortBy);
         try (Connection conn = dbHelper.getConnection()) {
             Optional<String> orderId = dbHelper.getOrderIdForAccount(conn, accountId);
             if (orderId.isEmpty()) {
                 return buildResponseEntity(HttpStatus.NOT_FOUND,
                         "Status history for account [" + accountId + "] not found");
             }
-            List<CreditCardOrderStatus> statusList = dbHelper.getOrderStatusList(conn, orderId.get());
+            List<CreditCardOrderStatus> statusList = dbHelper.getOrderStatusList(conn, orderId.get(), sortBy);
             return buildResponseEntity(HttpStatus.OK, "Status history found",
                     new CreditCardOrderStatusHistory(orderId.get(), statusList));
         } catch (SQLException e) {
