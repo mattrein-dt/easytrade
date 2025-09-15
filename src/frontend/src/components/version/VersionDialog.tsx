@@ -20,7 +20,7 @@ interface VersionDialogProps {
 export function VersionDialog(props: VersionDialogProps) {
     return (
         <Dialog open={props.open} onClose={props.closeHandler}>
-            <DialogTitle>EasyTrade</DialogTitle>
+            <DialogTitle>EasyTrade (Custom)</DialogTitle>
             <List
                 sx={{
                     paddingX: "30px",
