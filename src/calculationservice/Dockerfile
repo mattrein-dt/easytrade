@@ -25,7 +25,7 @@ RUN wget ${ONEAGENT_SDK_URL} -O oneagentsdk.tar.gz \
     && tar -zxvf oneagentsdk.tar.gz \
     && g++ -std=c++17 -o consumeCandleData consume.cpp -I ./${ONEAGENT_SDK_DIR}/include -L ./${ONEAGENT_SDK_DIR}/lib/linux-x86_64 ${C_FLAGS}
 
-FROM ubuntu:24.04@sha256:eea047b4b181f2d3aeafbc0ce5294a2bbb3b98153a68b9ed4bc573d871ca9450
+FROM ubuntu:24.04
 
 RUN apt-get update \
     && apt-get install -y \
