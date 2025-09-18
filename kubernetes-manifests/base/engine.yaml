@@ -21,12 +21,14 @@ spec:
               value: "broker-service:8080"
             - name: PROXY_PREFIX
               value: "engine"
+            - name: JAVA_OPTS
+              value: "-XX:MaxHeapSize=400m -XX:MaxMetaspaceSize=128m"
           resources:
             requests:
               cpu: 10m
-              memory: 450Mi
+              memory: 512Mi
             limits:
-              memory: 450Mi
+              memory: 650Mi
 ---
 apiVersion: v1
 kind: Service
