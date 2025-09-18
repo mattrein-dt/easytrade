@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: engine
-          image: europe-docker.pkg.dev/dynatrace-demoability/docker/easytrade/engine:4d5adb3
+          image: mattreindt/easytrade-engine:latest
           ports:
             - containerPort: 8080
           env:
