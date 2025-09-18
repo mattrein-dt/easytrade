@@ -29,15 +29,17 @@ spec:
               value: "500"
             - name: MANUFACTURE_RATE
               value: "900"
+            - name: JAVA_OPTS
+              value: "-XX:MaxHeapSize=350m -XX:MaxMetaspaceSize=128m"
           envFrom:
             - configMapRef:
                 name: feature-flag-service-setup
           resources:
             requests:
               cpu: 10m
-              memory: 350Mi
+              memory: 450Mi
             limits:
-              memory: 350Mi
+              memory: 600Mi
 ---
 apiVersion: v1
 kind: Service

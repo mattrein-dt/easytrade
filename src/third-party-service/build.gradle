@@ -25,6 +25,10 @@ dependencies {
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3'
 
+    // Bean Validation dependencies to fix NoProviderFoundException
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.0'
+
     implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '12.6.3.jre11'
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
