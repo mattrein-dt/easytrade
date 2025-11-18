@@ -14,6 +14,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/account")
@@ -23,6 +25,9 @@ public class AccountController {
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'hh:mm:ss").create();
     private final String manager = System.getenv("MANAGER_HOSTANDPORT");
+    
+    // Memory leak: static collection that will grow unbounded
+    private static final List<Account> accountCache = new ArrayList<>();
 
     @GetMapping("/{accountId}")
     public Account get(@PathVariable int accountId) throws IOException, InterruptedException {
@@ -36,6 +41,10 @@ public class AccountController {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Account account = gson.fromJson(response.body(), Account.class);
+
+        // Memory leak: storing every account request in a static collection
+        accountCache.add(account);
+        logger.debug("Account cache size: {}", accountCache.size());
 
         return account;
     }
