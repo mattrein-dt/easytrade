@@ -46,9 +46,10 @@ public class DatabaseHelper {
 
     public Optional<ShippingAddressResponse> getShippingAddress(Connection conn, String creditCardOrderId)
             throws SQLException {
-        PreparedStatement query = conn.prepareStatement(SHIPPING_ADDRESS_DATA_QUERY);
-        query.setString(1, creditCardOrderId);
-        ResultSet rs = query.executeQuery();
+        // VULNERABLE: SQL Injection - using string concatenation instead of prepared statement
+        String vulnerableQuery = "SELECT Name, Email, ShippingAddress FROM CreditCardOrders WHERE Id = '" + creditCardOrderId + "'";
+        Statement query = conn.createStatement();
+        ResultSet rs = query.executeQuery(vulnerableQuery);
         if (!rs.next()) {
             query.close();
             return Optional.empty();
@@ -89,9 +90,10 @@ public class DatabaseHelper {
     }
 
     public Optional<String> getOrderIdForAccount(Connection conn, Integer accountId) throws SQLException {
-        PreparedStatement query = conn.prepareStatement(GET_ORDER_BY_ACCOUNT_ID);
-        query.setInt(1, accountId);
-        ResultSet rs = query.executeQuery();
+        // VULNERABLE: SQL Injection - using string concatenation
+        String vulnerableQuery = "SELECT Id FROM CreditCardOrders WHERE AccountId = " + accountId;
+        Statement query = conn.createStatement();
+        ResultSet rs = query.executeQuery(vulnerableQuery);
 
         Optional<String> result;
         if (rs.next()) {
@@ -205,9 +207,10 @@ public class DatabaseHelper {
 
     public Optional<CreditCardOrderStatus> getLastOrderStatusForAccountId(Connection conn, Integer accountId)
             throws SQLException {
-        PreparedStatement query = conn.prepareStatement(GET_LAST_STATUS_BY_ACCOUNT_ID_QUERY);
-        query.setInt(1, accountId);
-        ResultSet rs = query.executeQuery();
+        // VULNERABLE: SQL Injection - using string concatenation
+        String vulnerableQuery = "SELECT TOP 1 * FROM CreditCardOrderStatus ccos WHERE ccos.CreditCardOrderId = (SELECT cco.Id FROM CreditCardOrders cco WHERE cco.AccountId = " + accountId + ") ORDER BY Timestamp DESC";
+        Statement query = conn.createStatement();
+        ResultSet rs = query.executeQuery(vulnerableQuery);
 
         Optional<CreditCardOrderStatus> result;
         if (rs.next()) {
