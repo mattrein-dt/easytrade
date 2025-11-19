@@ -38,7 +38,7 @@ public class AccountController {
     private Account getAccountWithCache(int accountId) throws IOException, InterruptedException {
         // Check cache first to avoid unnecessary API calls
         Account cachedAccount = findInCache(accountId);
-        if (cachedAccount != null) {
+        if (cachedAccount) {
             logger.info("Returning cached account for {}", accountId);
             return cachedAccount;
         }
