@@ -44,10 +44,6 @@ public class AccountControllerV2 {
     private Account getAccountWithCache(int accountId) throws IOException, InterruptedException {
         // Check cache first to avoid unnecessary API calls
         Account cachedAccount = findInCache(accountId);
-        if (cachedAccount != null) {
-            logger.info("Returning cached account for {}", accountId);
-            return cachedAccount;
-        }
 
         // file deepcode ignore Ssrf: trusted environment variable
         HttpRequest request = HttpRequest.newBuilder()
