@@ -14,8 +14,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/account")
@@ -25,23 +23,10 @@ public class AccountController {
     private final HttpClient httpClient = HttpClient.newBuilder().build();
     private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'hh:mm:ss").create();
     private final String manager = System.getenv("MANAGER_HOSTANDPORT");
-    
-    // Cache to improve performance by avoiding repeated API calls
-    private static final List<Account> accountCache = new ArrayList<>();
 
     @GetMapping("/{accountId}")
     public Account get(@PathVariable int accountId) throws IOException, InterruptedException {
         logger.info("Getting account data for {}", accountId);
-        return getAccountWithCache(accountId);
-    }
-
-    private Account getAccountWithCache(int accountId) throws IOException, InterruptedException {
-        // Check cache first to avoid unnecessary API calls
-        Account cachedAccount = findInCache(accountId);
-        if (cachedAccount) {
-            logger.info("Returning cached account for {}", accountId);
-            return cachedAccount;
-        }
 
         // file deepcode ignore Ssrf: trusted environment variable
         HttpRequest request = HttpRequest.newBuilder()
@@ -52,29 +37,7 @@ public class AccountController {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Account account = gson.fromJson(response.body(), Account.class);
 
-        // Add to cache for future requests
-        accountCache.add(account);
-        logger.info("Added account {} to cache. Cache size: {}", accountId, accountCache.size());
-
         return account;
-    }
-
-    private Account findInCache(int accountId) {
-        return findInCache(accountId, 0);
-    }
-
-    private Account findInCache(int accountId, int index) {
-        if (index >= accountCache.size()) {
-            return null;
-        }
-        
-        Account account = accountCache.get(index);
-        if (account.getId() == accountId) {
-            return account;
-        }
-        
-        // Recursively search through cache
-        return findInCache(accountId, index + 1);
     }
 
     @PutMapping(value = "/update", produces = "text/plain")
