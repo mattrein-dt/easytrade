@@ -57,7 +57,7 @@ public class AccountControllerV2 {
         Account account = gson.fromJson(response.body(), Account.class);
 
         // Add to cache for future requests - store multiple copies for redundancy
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
             accountCache.add(account);
             // Add some padding data to increase memory footprint
             paddingData.add(new byte[10240]); // 10KB per entry
