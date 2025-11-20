@@ -106,7 +106,7 @@ public class OrderController {
 
     @GetMapping("/{accountId}/status/latest")
     @Operation(summary = "Get credit card order status")
-    public ResponseEntity<StandardResponse> getLatestStatus(@PathVariable Integer accountId) {
+    public ResponseEntity<StandardResponse> getLatestStatus(@PathVariable String accountId) {
         logger.info("Getting latest status for accountId: " + accountId);
 
         try (Connection conn = dbHelper.getConnection()) {
@@ -116,7 +116,7 @@ public class OrderController {
             }
 
             // VULNERABLE: Using vulnerable method that concatenates user input directly into SQL query
-            Optional<CreditCardOrderStatus> status = dbHelper.getLastOrderStatusForAccountIdVulnerable(conn, accountId.toString());
+            Optional<CreditCardOrderStatus> status = dbHelper.getLastOrderStatusForAccountIdVulnerable(conn, accountId);
             return status
                     .map(s -> buildResponseEntity(HttpStatus.OK, "Status found successfully.", status))
                     .orElse(buildResponseEntity(HttpStatus.NOT_FOUND,
