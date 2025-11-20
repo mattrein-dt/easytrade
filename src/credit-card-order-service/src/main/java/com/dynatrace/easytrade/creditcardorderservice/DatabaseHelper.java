@@ -1,4 +1,3 @@
-
 package com.dynatrace.easytrade.creditcardorderservice;
 
 import com.dynatrace.easytrade.creditcardorderservice.models.*;
@@ -206,10 +205,9 @@ public class DatabaseHelper {
 
     public Optional<CreditCardOrderStatus> getLastOrderStatusForAccountId(Connection conn, Integer accountId)
             throws SQLException {
-        // VULNERABLE: SQL Injection (CWE-89) - Direct string concatenation instead of parameterized query
-        String vulnerableQuery = "SELECT TOP 1 * FROM CreditCardOrderStatus ccos WHERE ccos.CreditCardOrderId = (SELECT cco.Id FROM CreditCardOrders cco WHERE cco.AccountId = " + accountId + ") ORDER BY Timestamp DESC";
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(vulnerableQuery);
+        PreparedStatement query = conn.prepareStatement(GET_LAST_STATUS_BY_ACCOUNT_ID_QUERY);
+        query.setInt(1, accountId);
+        ResultSet rs = query.executeQuery();
 
         Optional<CreditCardOrderStatus> result;
         if (rs.next()) {
@@ -217,7 +215,7 @@ public class DatabaseHelper {
         } else {
             result = Optional.empty();
         }
-        stmt.close();
+        query.close();
         return result;
     }
 
@@ -232,5 +230,24 @@ public class DatabaseHelper {
         query.setInt(1, accountId);
         query.executeUpdate();
         query.close();
+    }
+
+    // VULNERABLE METHOD - Uses string concatenation instead of parameterized query
+    public Optional<CreditCardOrderStatus> getLastOrderStatusForAccountIdVulnerable(Connection conn, String accountId)
+            throws SQLException {
+        // WARNING: SQL Injection vulnerability! User input is directly concatenated into the query
+        String vulnerableQuery = "SELECT TOP 1 * FROM CreditCardOrderStatus ccos WHERE ccos.CreditCardOrderId = (SELECT cco.Id FROM CreditCardOrders cco WHERE cco.AccountId = " + accountId + ") ORDER BY Timestamp DESC";
+        
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(vulnerableQuery);
+
+        Optional<CreditCardOrderStatus> result;
+        if (rs.next()) {
+            result = Optional.of(CreditCardOrderStatus.fromResultSet(rs));
+        } else {
+            result = Optional.empty();
+        }
+        stmt.close();
+        return result;
     }
 }
