@@ -45,7 +45,11 @@ public class AccountControllerV2 {
     private Account getAccountWithCache(int accountId) throws IOException, InterruptedException {
         // Check cache first to avoid unnecessary API calls
         Account cachedAccount = findInCache(accountId);
-
+        // Fix by making sure we use the cached account
+        // if (cachedAccount != null) {
+        //     logger.info("Returning cached account for {}", accountId);
+        //     return cachedAccount;
+        // }
         // file deepcode ignore Ssrf: trusted environment variable
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(String.format("http://%s/api/Accounts/GetAccountById/%d", manager, accountId)))
