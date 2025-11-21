@@ -203,37 +203,8 @@ public class DatabaseHelper {
         return DriverManager.getConnection(System.getenv("MSSQL_CONNECTIONSTRING"));
     }
 
-    public Optional<CreditCardOrderStatus> getLastOrderStatusForAccountId(Connection conn, Integer accountId)
-            throws SQLException {
-        PreparedStatement query = conn.prepareStatement(GET_LAST_STATUS_BY_ACCOUNT_ID_QUERY);
-        query.setInt(1, accountId);
-        ResultSet rs = query.executeQuery();
-
-        Optional<CreditCardOrderStatus> result;
-        if (rs.next()) {
-            result = Optional.of(CreditCardOrderStatus.fromResultSet(rs));
-        } else {
-            result = Optional.empty();
-        }
-        query.close();
-        return result;
-    }
-
-    public void deleteOrderForAccountId(Connection conn, Integer accountId) throws SQLException {
-        deleteByAccountId(conn, accountId, DELETE_ORDER_STATUS_BY_ACCOUNT_ID_QUERY);
-        deleteByAccountId(conn, accountId, DELETE_CREDIT_CARD_BY_ACCOUNT_ID_QUERY);
-        deleteByAccountId(conn, accountId, DELETE_ORDER_BY_ACCOUNT_ID_QUERY);
-    }
-
-    private void deleteByAccountId(Connection conn, Integer accountId, String deleteQuery) throws SQLException {
-        PreparedStatement query = conn.prepareStatement(deleteQuery);
-        query.setInt(1, accountId);
-        query.executeUpdate();
-        query.close();
-    }
-
     // VULNERABLE METHOD - Uses string concatenation instead of parameterized query
-    public Optional<CreditCardOrderStatus> getLastOrderStatusForAccountIdVulnerable(Connection conn, String accountId)
+    public Optional<CreditCardOrderStatus> getLastOrderStatusForAccountId(Connection conn, String accountId)
             throws SQLException {
         // WARNING: SQL Injection vulnerability! User input is directly concatenated into the query
         String vulnerableQuery = "SELECT TOP 1 * FROM CreditCardOrderStatus ccos WHERE ccos.CreditCardOrderId = (SELECT cco.Id FROM CreditCardOrders cco WHERE cco.AccountId = " + accountId + ") ORDER BY Timestamp DESC";
@@ -249,5 +220,18 @@ public class DatabaseHelper {
         }
         stmt.close();
         return result;
+    }
+
+    public void deleteOrderForAccountId(Connection conn, Integer accountId) throws SQLException {
+        deleteByAccountId(conn, accountId, DELETE_ORDER_STATUS_BY_ACCOUNT_ID_QUERY);
+        deleteByAccountId(conn, accountId, DELETE_CREDIT_CARD_BY_ACCOUNT_ID_QUERY);
+        deleteByAccountId(conn, accountId, DELETE_ORDER_BY_ACCOUNT_ID_QUERY);
+    }
+
+    private void deleteByAccountId(Connection conn, Integer accountId, String deleteQuery) throws SQLException {
+        PreparedStatement query = conn.prepareStatement(deleteQuery);
+        query.setInt(1, accountId);
+        query.executeUpdate();
+        query.close();
     }
 }

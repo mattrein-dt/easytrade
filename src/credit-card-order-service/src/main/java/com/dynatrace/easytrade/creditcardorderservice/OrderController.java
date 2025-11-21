@@ -116,7 +116,7 @@ public class OrderController {
             }
 
             // VULNERABLE: Using vulnerable method that concatenates user input directly into SQL query
-            Optional<CreditCardOrderStatus> status = dbHelper.getLastOrderStatusForAccountIdVulnerable(conn, accountId);
+            Optional<CreditCardOrderStatus> status = dbHelper.getLastOrderStatusForAccountId(conn, accountId);
             return status
                     .map(s -> buildResponseEntity(HttpStatus.OK, "Status found successfully.", status))
                     .orElse(buildResponseEntity(HttpStatus.NOT_FOUND,
