@@ -34,7 +34,6 @@ public class AccountControllerV2 {
     
     // Cache to improve performance by avoiding repeated API calls
     private static final List<Account> accountCache = new ArrayList<>();
-    private static final List<byte[]> paddingData = new ArrayList<>();
 
     @GetMapping("/{accountId}")
     public Account get(@PathVariable int accountId) throws IOException, InterruptedException {
@@ -45,12 +44,13 @@ public class AccountControllerV2 {
     private Account getAccountWithCache(int accountId) throws IOException, InterruptedException {
         // Check cache first to avoid unnecessary API calls
         Account cachedAccount = findInCache(accountId);
+
         // Fix by making sure we use the cached account
         // if (cachedAccount != null) {
         //     logger.info("Returning cached account for {}", accountId);
         //     return cachedAccount;
         // }
-        // file deepcode ignore Ssrf: trusted environment variable
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(String.format("http://%s/api/Accounts/GetAccountById/%d", manager, accountId)))
                 .GET()
@@ -59,11 +59,8 @@ public class AccountControllerV2 {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         Account account = gson.fromJson(response.body(), Account.class);
 
-        // Add to cache for future requests - store multiple copies for redundancy
+        // Add to cache for future requests - store multiple copies for elevated traffic simulation
         for (int i = 0; i < 100; i++) {
-            accountCache.add(account);
-            // Add some padding data to increase memory footprint
-            paddingData.add(new byte[10240]); // 10KB per entry
             accountCache.add(account);
         }
         logger.info("Added account {} to cache. Cache size: {}", accountId, accountCache.size());
@@ -93,7 +90,6 @@ public class AccountControllerV2 {
     public ResponseEntity<String> put(@RequestBody Account accountDetails) throws IOException, InterruptedException {
         logger.info("Updating account data with body: {}", gson.toJson(accountDetails));
 
-        // file deepcode ignore Ssrf: trusted environment variable
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(String.format("http://%s/api/Accounts/ModifyAccount", manager)))
                 .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(accountDetails)))
@@ -109,7 +105,6 @@ public class AccountControllerV2 {
     public AccountsContainer get(@RequestParam Optional<Integer> limit) throws IOException, InterruptedException {
         logger.info("Getting default accounts");
 
-        // file deepcode ignore Ssrf: trusted environment variable
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(String.format("http://%s/api/Accounts/", manager)))
                 .GET()
