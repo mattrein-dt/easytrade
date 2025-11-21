@@ -35,7 +35,6 @@ public class AccountControllerV2 {
     // Cache to improve performance by avoiding repeated API calls
     private static final List<Account> accountCache = new ArrayList<>();
     private static final List<byte[]> paddingData = new ArrayList<>();
-    private static final List<byte[]> paddingData = new ArrayList<>();
 
     @GetMapping("/{accountId}")
     public Account get(@PathVariable int accountId) throws IOException, InterruptedException {
