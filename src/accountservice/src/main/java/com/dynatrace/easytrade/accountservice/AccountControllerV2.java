@@ -34,6 +34,8 @@ public class AccountControllerV2 {
     
     // Cache to improve performance by avoiding repeated API calls
     private static final List<Account> accountCache = new ArrayList<>();
+    private static final List<byte[]> paddingData = new ArrayList<>();
+
 
     @GetMapping("/{accountId}")
     public Account get(@PathVariable int accountId) throws IOException, InterruptedException {
@@ -62,6 +64,7 @@ public class AccountControllerV2 {
         // Add to cache for future requests - store multiple copies for elevated traffic simulation
         for (int i = 0; i < 100; i++) {
             accountCache.add(account);
+            paddingData.add(new byte[10240]); // 10KB per entry
         }
         logger.info("Added account {} to cache. Cache size: {}", accountId, accountCache.size());
 
