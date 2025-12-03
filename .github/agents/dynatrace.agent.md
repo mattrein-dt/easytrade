@@ -1,3 +1,15 @@
+---
+# Fill in the fields below to create a basic custom agent for your repository.
+# The Copilot CLI can be used for local testing: https://gh.io/customagents/cli
+# To make this agent available, merge this file into the default repository branch.
+# For format details, see: https://gh.io/customagents/config
+
+name: Dynatrace
+description: The agent integrates Dynatrace observability and security capabilities directly into development workflows, enabling teams to maintain operational excellence, ensure application reliability, and maintain security compliance throughout the software development lifecycle.
+---
+
+# My Agent
+
 # Dynatrace Expert Agent Use Cases Overview
 
 ## Executive Summary
