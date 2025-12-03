@@ -2,7 +2,6 @@ package com.dynatrace.easytrade.creditcardorderservice;
 
 import com.dynatrace.easytrade.creditcardorderservice.models.*;
 
-import dev.openfeature.sdk.OpenFeatureAPI;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,8 +21,6 @@ import static org.mockito.ArgumentMatchers.*;
 public class OrderControllerTests {
     @Mock
     DatabaseHelper helper;
-    @Mock
-    OpenFeatureAPI openFeatureAPI;
 
     private final String GUID = "a67a075f-f1b3-4fd4-bfbd-e4986cd11956";
     private final StatusRequest STATUS_REQUEST = new StatusRequest(GUID, StatusType.CARD_ORDERED.getType(),
@@ -34,7 +31,7 @@ public class OrderControllerTests {
     void getConnectionThrowsExceptionTest() {
         Mockito.when(helper.getConnection()).thenThrow(new SQLException("XXX"));
 
-        OrderController controller = new OrderController(helper, openFeatureAPI);
+        OrderController controller = new OrderController(helper);
         ResponseEntity<StandardResponse> response = controller.createCreditCardOrder(null);
         var body = response.getBody();
         assertNotNull(body, "Expected response body to not be null");
@@ -115,7 +112,7 @@ public class OrderControllerTests {
     }
 
     private void checkOrderCreationResult(int statusCode, String message, CreditCardOrderRequest request) {
-        OrderController controller = new OrderController(helper, openFeatureAPI);
+        OrderController controller = new OrderController(helper);
         ResponseEntity<StandardResponse> response = controller.createCreditCardOrder(request);
         var body = response.getBody();
         assertNotNull(body, "Expected response body to not be null");
@@ -124,7 +121,7 @@ public class OrderControllerTests {
     }
 
     private void checkStatusUpdateResult(int statusCode, String message, StatusRequest request, String id) {
-        OrderController controller = new OrderController(helper, openFeatureAPI);
+        OrderController controller = new OrderController(helper);
         ResponseEntity<StandardResponse> response = controller.updateStatus(id, request);
         var body = response.getBody();
         assertNotNull(body, "Expected response body to not be null");

@@ -4,8 +4,6 @@ import com.dynatrace.easytrade.creditcardorderservice.models.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import dev.openfeature.sdk.Client;
-import dev.openfeature.sdk.OpenFeatureAPI;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,7 +21,7 @@ import java.sql.*;
 @RestController
 @RequestMapping(value="/v1/orders", 
         produces={"application/json", "application/xml"})
-@CrossOrigin
+@CrossOrigin(origins = {"${easytrade.cors.allowed-origins:http://localhost:*,https://localhost:*}"})
 @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Status updated", content =
                 @Content(schema = @Schema(implementation = StandardResponse.class))),
@@ -42,12 +40,10 @@ public class OrderController {
     public static final String ORDER_CREATED = "Credit card order has been created.";
     public static final String ORDER_ALREADY_EXISTS = "A credit card order for given accountId already exists!";
     private final DatabaseHelper dbHelper;
-    private final OpenFeatureAPI openFeatureAPI;
 
-    public OrderController(DatabaseHelper dbHelper, OpenFeatureAPI openFeatureAPI) {
+    public OrderController(DatabaseHelper dbHelper) {
 
         this.dbHelper = dbHelper;
-        this.openFeatureAPI = openFeatureAPI;
     }
 
     @PostMapping(value="", consumes={"application/json", "application/xml"})
@@ -110,11 +106,6 @@ public class OrderController {
         logger.info("Getting latest status for accountId: " + accountId);
 
         try (Connection conn = dbHelper.getConnection()) {
-            final Client client = openFeatureAPI.getClient();
-            if (client.getBooleanValue("credit_card_meltdown", false)) {
-                CountSequenceTotal(5, 2, 14);
-            }
-
             Optional<CreditCardOrderStatus> status = dbHelper.getLastOrderStatusForAccountId(conn, accountId);
             return status
                     .map(s -> buildResponseEntity(HttpStatus.OK, "Status found successfully.", status))
@@ -123,7 +114,7 @@ public class OrderController {
         } catch (SQLException e) {
             return handleSQLException(e);
         } catch (Exception e) {
-            logger.error("Excepiton occured", e);
+            logger.error("Exception occurred", e);
             throw e;
         }
     }
@@ -289,26 +280,5 @@ public class OrderController {
     private ResponseEntity<StandardResponse> handleSQLException(SQLException e) {
         return buildResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "An exception occurred!",
                 null, null, e.getMessage(), true);
-    }
-
-    private int CountSequenceTotal(int firstElement, int step, int count)
-    {
-        int tmpFirstElement = firstElement + 7;
-        int tmpStep = step + 2;
-        int tmpCount = count + 13;
-
-        return CountArythmeticSequenceTotal(tmpFirstElement, tmpStep, tmpCount);
-    }
-
-    private int CountArythmeticSequenceTotal(int firstElement, int step, int count)
-    {
-        // this has a wrong value (normally would be 2), because we want to create an exception!
-        int theGreatDivider = 0;
-
-        int lastElement = firstElement + (step * (count - 1));
-        // deepcode ignore DivisionByZero: exception should be thrown here
-        int total = (firstElement + lastElement) * count / theGreatDivider;
-
-        return total;
     }
 }
